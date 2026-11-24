@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CSU NSRC — Centralized Disaster &amp; Relief Tracking System</title>
+  <link rel="stylesheet" href="/static/css/styles.css?v=6" />
+</head>
+<body>
+
+  <!-- LOGIN VIEW -->
+  <div id="loginScreen" class="login-wrapper">
+    <div class="login-card">
+      <div class="brand-badge">CARAGA STATE UNIVERSITY</div>
+      <h1>CSU NSRC Tracking System</h1>
+      <p class="subtitle">Centralized Incident Intake, Action Monitoring &amp; External Donation Coordination</p>
+
+      <form id="loginForm">
+        <label for="loginUsername">Office / College Entity</label>
+        <select id="loginUsername" required>
+          <option value="" disabled selected>-- Select Office or College --</option>
+          <option value="CSU-NSRC">CSU-NSRC (Central Admin)</option>
+          <option value="CSU-CAA">CSU-CAA — College of Agriculture and Agri-Industries</option>
+          <option value="CSU-CCIS">CSU-CCIS — College of Computing and Information Sciences</option>
+          <option value="CSU-CED">CSU-CED — College of Education</option>
+          <option value="CSU-CEGS">CSU-CEGS — College of Engineering and Geosciences</option>
+          <option value="CSU-CHASS">CSU-CHASS — College of Humanities and Social Sciences</option>
+          <option value="CSU-CMNS">CSU-CMNS — College of Mathematics and Natural Sciences</option>
+          <option value="CSU-COFES">CSU-COFES — College of Forestry and Environmental Sciences</option>
+        </select>
+
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" placeholder="Enter password" required />
+
+        <div id="loginError" class="error-box hidden"></div>
+        <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Sign In to Office Portal</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- PORTAL A: CSU NSRC CENTRAL ADMIN (WITH FULL MENU BAR & COLLEGE VIEWS) -->
+  <!-- ===================================================================== -->
+  <div id="adminShell" class="app-layout hidden">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="logo-tag">CSU NSRC</span>
+        <div>
+          <strong>CSU NSRC Central Admin</strong>
+          <small class="block text-muted">University-Wide Command, College Monitoring &amp; Logistics</small>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="event-picker">
+          <label for="adminIncidentSelect">Active Event:</label>
+          <select id="adminIncidentSelect"></select>
+          <span id="adminIncidentBadge" class="badge badge-closed">No Event</span>
+        </div>
+        <button class="btn btn-ghost" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
+
+    <div class="workspace-body">
+      <!-- LEFT SIDEBAR MENU -->
+      <aside class="sidebar">
+        <div class="sidebar-section-label">OVERVIEW</div>
+        <nav class="sidebar-nav">
+          <button type="button" class="nav-item active" data-view="summary" onclick="switchAdminView('summary')">
+            <span class="nav-title">Dashboard Summary</span>
+            <span id="navBadgeAll" class="nav-count">0</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-label">7 CSU COLLEGES</div>
+        <nav class="sidebar-nav">
+          <button type="button" class="nav-item" data-view="college-CAA" onclick="switchAdminView('college-CAA')">
+            <span class="nav-title">CAA Reports</span>
+            <span id="navBadge-CAA" class="nav-count">0</span>
+          </button>
+          <button type="button" class="nav-item" data-view="college-CCIS" onclick="switchAdminView('college-CCIS')">
+            <span class="nav-title">CCIS Reports</span>
+            <span id="navBadge-CCIS" class="nav-count">0</span>
+          </button>
+          <button type="button" class="nav-item" data-view="college-CED" onclick="switchAdminView('college-CED')">
+            <span class="nav-title">CED Reports</span>
+            <span id="navBadge-CED" class="nav-count">0</span>
+          </button>
+          <button type="button" class="nav-item" data-view="college-CEGS" onclick="switchAdminView('college-CEGS')">
+            <span class="nav-title">CEGS Reports</span>
+            <span id="navBadge-CEGS" class="nav-count">0</span>
+          </button>
+          <button type="button" class="nav-item" data-view="college-CHASS" onclick="switchAdminView('college-CHASS')">
+            <span class="nav-title">CHASS Reports</span>
+            <span id="navBadge-CHASS" class="nav-count">0</span>
+          </button>
+          <button type="button" class="nav-item" data-view="college-CMNS" onclick="switchAdminView('college-CMNS')">
+            <span class="nav-title">CMNS Reports</span>
+            <span id="navBadge-CMNS" class="nav-count">0</span>
+          </button>
+          <button type="button" class="nav-item" data-view="college-COFES" onclick="switchAdminView('college-COFES')">
+            <span class="nav-title">COFES Reports</span>
+            <span id="navBadge-COFES" class="nav-count">0</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section-label">DETAILED RECORDS</div>
+        <nav class="sidebar-nav">
+          <button type="button" class="nav-item" data-view="evacuation" onclick="switchAdminView('evacuation')">
+            <span class="nav-title">Evacuation Records</span>
+            <span id="navBadgeEvac" class="nav-count">0</span>
+          </button>
+          <button type="button" class="nav-item" data-view="donations" onclick="switchAdminView('donations')">
+            <span class="nav-title">Donation Records</span>
+            <span id="navBadgeDonations" class="nav-count">0</span>
+          </button>
+          <button type="button" class="nav-item" data-view="relief" onclick="switchAdminView('relief')">
+            <span class="nav-title">Relief Goods Records</span>
+            <span id="navBadgeRelief" class="nav-count">0</span>
+          </button>
+          <button type="button" class="nav-item" data-view="incidents" onclick="switchAdminView('incidents')">
+            <span class="nav-title">Incident Reporting</span>
+            <span id="navBadgeIncidents" class="nav-count">0</span>
+          </button>
+        </nav>
+      </aside>
+
+      <!-- ADMIN MAIN PANEL -->
+      <main class="main-content">
+
+        <!-- VIEW 1: DASHBOARD SUMMARY (ALL 7 COLLEGES OVERVIEW) -->
+        <div id="adminView-summary">
+          <section class="kpi-grid">
+            <div class="kpi-card clickable" onclick="openAdminKpiModal('students')">
+              <span class="kpi-label">Total Students Affected</span>
+              <strong id="kpiTotal" class="kpi-value">0</strong>
+              <span class="kpi-sub">Click to view name, ID, college &amp; program</span>
+            </div>
+            <div class="kpi-card clickable" onclick="openAdminKpiModal('relief')">
+              <span class="kpi-label">Relief Goods (Released / Requests)</span>
+              <strong id="kpiReliefGoods" class="kpi-value text-amber">0 / 0</strong>
+              <span class="kpi-sub">Click to view released over requests</span>
+            </div>
+            <div class="kpi-card clickable" onclick="openAdminKpiModal('incidents')">
+              <span class="kpi-label">Incidents</span>
+              <strong id="kpiIncidents" class="kpi-value text-blue">0</strong>
+              <span class="kpi-sub">Click to view recorded incidents</span>
+            </div>
+            <div class="kpi-card clickable" onclick="openAdminKpiModal('resolved')">
+              <span class="kpi-label">Resolved</span>
+              <strong id="kpiResolved" class="kpi-value text-green">0</strong>
+              <span class="kpi-sub">Click to view resolved reports</span>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h2>Summary Across All 7 CSU Colleges</h2>
+                <p class="text-muted text-sm">Click any college card below or in the left menu to inspect its detailed records.</p>
+              </div>
+              <span class="live-indicator">● Live Database Sync (15s)</span>
+            </div>
+            <div id="collegeCardsGrid" class="college-grid"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h2>Consolidated Affected Student Reports (All Colleges)</h2>
+                <p class="text-muted text-sm">University-wide intake summary for the selected event.</p>
+              </div>
+              <div class="header-actions">
+                <input type="text" id="searchSummaryStudent" placeholder="Search ID, name, college, or address..." oninput="renderSummaryStudentsTable()" />
+                <button class="btn btn-primary" onclick="openAdminStudentModal()">+ Record Affected Student</button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>College</th>
+                    <th>Student ID</th>
+                    <th>Full Name</th>
+                    <th>Program</th>
+                    <th>Address</th>
+                    <th>Boarding House</th>
+                    <th>Contact</th>
+                    <th>Impact</th>
+                    <th>NSRC Status</th>
+                    <th>Shelter</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="summaryStudentsBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- VIEW 2: SPECIFIC COLLEGE RECORDS VIEW (VIEW REPORTS & UPDATE STATUS ONLY) -->
+        <div id="adminView-college" class="hidden">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h2 id="specificCollegeTitle">College Records</h2>
+                <p id="specificCollegeSubtitle" class="text-muted text-sm">Detailed incident submissions from this college.</p>
+              </div>
+              <div class="header-actions">
+                <input type="text" id="searchCollegeStudent" placeholder="Search ID, name, or address..." oninput="renderSpecificCollegeTable()" />
+              </div>
+            </div>
+
+            <div class="kpi-grid" style="margin-bottom: 1rem;">
+              <div class="kpi-card">
+                <span class="kpi-label">College Total</span>
+                <strong id="colKpiTotal" class="kpi-value">0</strong>
+              </div>
+              <div class="kpi-card">
+                <span class="kpi-label">Pending</span>
+                <strong id="colKpiPending" class="kpi-value text-amber">0</strong>
+              </div>
+              <div class="kpi-card">
+                <span class="kpi-label">Actioned / Sheltered</span>
+                <strong id="colKpiActioned" class="kpi-value text-blue">0</strong>
+              </div>
+              <div class="kpi-card">
+                <span class="kpi-label">Resolved</span>
+                <strong id="colKpiResolved" class="kpi-value text-green">0</strong>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Student ID</th>
+                    <th>Full Name</th>
+                    <th>Program</th>
+                    <th>Address</th>
+                    <th>Boarding House</th>
+                    <th>Contact</th>
+                    <th>Impact</th>
+                    <th>NSRC Status</th>
+                    <th>Assigned Shelter</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="specificCollegeBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- VIEW 3: DETAILED EVACUATION RECORDS -->
+        <div id="adminView-evacuation" class="hidden">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h2>Evacuation Centers &amp; Capacity Records</h2>
+                <p class="text-muted text-sm">Manage evacuation facilities and live occupancy counts.</p>
+              </div>
+              <button class="btn btn-primary" onclick="openModal('modalCenter')">+ Add Evacuation Center</button>
+            </div>
+            <div id="centersList" class="centers-grid"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h2>Sheltered Students Roster</h2>
+                <p class="text-muted text-sm">All affected students currently assigned to an evacuation center.</p>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Evacuation Center</th>
+                    <th>College</th>
+                    <th>Student ID</th>
+                    <th>Full Name</th>
+                    <th>Program</th>
+                    <th>Contact</th>
+                    <th>Current Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="shelteredStudentsBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- VIEW 4: DETAILED DONATION RECORDS -->
+        <div id="adminView-donations" class="hidden">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h2>External Partner &amp; Donor Institutions</h2>
+                <p class="text-muted text-sm">Registered NGOs, LGUs, private organizations, and alumni donors.</p>
+              </div>
+              <div class="header-actions">
+                <button class="btn btn-outline" onclick="openModal('modalPartner')">+ Register Partner Institution</button>
+                <button class="btn btn-primary" onclick="openTxModal('IN')">+ Log External Donation (IN)</button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Institution / Organization</th>
+                    <th>Type</th>
+                    <th>Contact Person</th>
+                    <th>Contact Details</th>
+                  </tr>
+                </thead>
+                <tbody id="partnersTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <h2>Incoming Donation Records (IN)</h2>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Donor / Partner Institution</th>
+                    <th>Relief Item Donated</th>
+                    <th>Quantity Received</th>
+                    <th>Delivery Reference / Notes</th>
+                    <th>Recorded By</th>
+                  </tr>
+                </thead>
+                <tbody id="incomingDonationsBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- VIEW 5: DETAILED RELIEF GOODS RECORDS -->
+        <div id="adminView-relief" class="hidden">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h2>Relief Goods Inventory Stock</h2>
+                <p class="text-muted text-sm">Current warehouse inventory balance and low-stock monitoring.</p>
+              </div>
+              <div class="header-actions">
+                <button class="btn btn-outline" onclick="openModal('modalItem')">+ Add Relief Item</button>
+                <button class="btn btn-gold" onclick="openTxModal('OUT')">- Release Relief Goods (OUT)</button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Relief Item</th>
+                    <th>Category</th>
+                    <th>Unit</th>
+                    <th>Alert Threshold</th>
+                    <th>Stock On Hand</th>
+                  </tr>
+                </thead>
+                <tbody id="inventoryTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-header">
+              <h2>Relief Goods Distribution &amp; Release Records (OUT)</h2>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Relief Item</th>
+                    <th>Quantity Released</th>
+                    <th>Recipient (College / Center / Student)</th>
+                    <th>Released By</th>
+                  </tr>
+                </thead>
+                <tbody id="outgoingReleasesBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+        <!-- VIEW 6: INCIDENT REPORTING RECORDS -->
+        <div id="adminView-incidents" class="hidden">
+          <section class="card">
+            <div class="card-header">
+              <div>
+                <h2>Incident &amp; Calamity Reporting Records</h2>
+                <p class="text-muted text-sm">Create new calamity events, close resolved events, or export official aftermath CSV reports.</p>
+              </div>
+              <button class="btn btn-primary" onclick="openModal('modalIncident')">+ Record New Incident</button>
+            </div>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Incident Title</th>
+                    <th>Hazard Type</th>
+                    <th>Incident Date / Info</th>
+                    <th>Affected Students</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="incidentsTableBody"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- PORTAL B: COLLEGE FOCAL PORTAL (NO MENU BAR — DIRECT SUBMIT & UPDATE) -->
+  <!-- ===================================================================== -->
+  <div id="collegeShell" class="app-layout hidden">
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="logo-tag">CSU NSRC</span>
+        <div>
+          <strong id="colPortalTitle">College Focal Portal</strong>
+          <small id="colPortalSubtitle" class="block text-muted">College Incident Intake &amp; Record Management</small>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <div class="event-picker">
+          <label for="colIncidentSelect">Active Event:</label>
+          <select id="colIncidentSelect"></select>
+          <span id="colIncidentBadge" class="badge badge-closed">No Event</span>
+        </div>
+        <button class="btn btn-ghost" onclick="logout()">Sign Out</button>
+      </div>
+    </header>
+
+    <main class="container">
+      <!-- COLLEGE KPI SUMMARY (ALL 4 CLICKABLE) -->
+      <section class="kpi-grid">
+        <div class="kpi-card clickable" onclick="openCollegeKpiModal('students')">
+          <span class="kpi-label">Total Students Affected</span>
+          <strong id="myColTotal" class="kpi-value">0</strong>
+          <span class="kpi-sub">Click to view name &amp; ID number</span>
+        </div>
+        <div class="kpi-card clickable" onclick="openCollegeKpiModal('relief')">
+          <span class="kpi-label">Relief Goods (Released / Requests)</span>
+          <strong id="myColReliefGoods" class="kpi-value text-amber">0 / 0</strong>
+          <span class="kpi-sub">Click to view goods, requests &amp; released</span>
+        </div>
+        <div class="kpi-card clickable" onclick="openCollegeKpiModal('evacuation')">
+          <span class="kpi-label">Evacuation</span>
+          <strong id="myColEvacuation" class="kpi-value text-blue">0</strong>
+          <span class="kpi-sub">Click to view evacuation &amp; student counts</span>
+        </div>
+        <div class="kpi-card clickable" onclick="openCollegeKpiModal('resolved')">
+          <span class="kpi-label">Resolved</span>
+          <strong id="myColResolved" class="kpi-value text-green">0</strong>
+          <span class="kpi-sub">Click to view resolved reports</span>
+        </div>
+      </section>
+
+      <!-- TWO-COLUMN COLLEGE WORKSPACE: SUBMIT FORM + SUBMITTED RECORDS TABLE -->
+      <div class="college-workspace-grid">
+        <!-- LEFT: SUBMIT AFFECTED STUDENT / INCIDENT REPORT -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h2>Submit Affected Student Report</h2>
+              <p class="text-muted text-sm">Record students from your college affected by the selected event.</p>
+            </div>
+          </div>
+
+          <form id="collegeDirectStudentForm">
+            <label>Student ID *</label>
+            <input type="text" name="student_id" placeholder="Enter Student ID" required />
+
+            <label>Full Name *</label>
+            <input type="text" name="full_name" placeholder="Last Name, First Name M.I." required />
+
+            <label>Program / Degree *</label>
+            <input type="text" name="program" placeholder="Enter Degree Program" required />
+
+            <label>Current Address / Barangay *</label>
+            <input type="text" name="address" placeholder="Purok, Barangay, City/Municipality" required />
+
+            <label>Boarding House (Optional)</label>
+            <input type="text" name="boarding_house" placeholder="Enter Boarding House Name / Location" />
+
+            <label>Contact Number</label>
+            <input type="text" name="contact_number" placeholder="Enter Contact Number" />
+
+            <label>Incident Impact / Immediate Need *</label>
+            <select name="impact_type" required>
+              <option value="" disabled selected>-- Select Impact / Need --</option>
+              <option value="Stranded">Stranded</option>
+              <option value="House Flooded">House Flooded</option>
+              <option value="Displaced">Displaced (Needs Shelter)</option>
+              <option value="Injured">Injured / Medical Attention</option>
+              <option value="Needs Relief">Needs Food / Relief Pack</option>
+            </select>
+
+            <div id="colDirectFormError" class="error-box hidden"></div>
+            <div id="colDirectFormSuccess" class="success-box hidden"></div>
+
+            <button type="submit" class="btn btn-primary w-full" style="margin-top: 1rem;">Submit Report to CSU NSRC</button>
+          </form>
+        </section>
+
+        <!-- RIGHT: SUBMITTED RECORDS & UPDATE WORKFLOW -->
+        <section class="card">
+          <div class="card-header">
+            <div>
+              <h2>Submitted College Records</h2>
+              <p class="text-muted text-sm">Update your submitted student details or track NSRC response actions.</p>
+            </div>
+            <input type="text" id="searchMyCollegeRecords" style="width: auto; min-width: 220px;" placeholder="Search ID, name, or address..." oninput="renderCollegePortalTable()" />
+          </div>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Student ID</th>
+                  <th>Full Name</th>
+                  <th>Program</th>
+                  <th>Address</th>
+                  <th>Boarding House</th>
+                  <th>Contact</th>
+                  <th>Impact</th>
+                  <th>NSRC Status</th>
+                  <th>Shelter</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="myCollegeRecordsBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- MODALS (SHARED ACROSS PORTALS)                                        -->
+  <!-- ===================================================================== -->
+
+  <!-- MODAL 0: KPI DRILL-DOWN DETAIL MODAL -->
+  <div id="modalKpiDetail" class="modal hidden">
+    <div class="modal-content modal-lg">
+      <div class="modal-header">
+        <h3 id="kpiModalTitle">Summary Details</h3>
+        <button class="close-btn" onclick="closeModal('modalKpiDetail')">&times;</button>
+      </div>
+      <div id="kpiModalBody"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="closeModal('modalKpiDetail')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 1: ADMIN ADD AFFECTED STUDENT -->
+  <div id="modalStudent" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Record Affected Student</h3>
+        <button class="close-btn" onclick="closeModal('modalStudent')">&times;</button>
+      </div>
+      <form id="studentForm">
+        <label>College *</label>
+        <select id="stuCollegeId" name="college_id" required></select>
+
+        <label>Student ID *</label>
+        <input type="text" name="student_id" placeholder="Enter Student ID" required />
+
+        <label>Full Name *</label>
+        <input type="text" name="full_name" placeholder="Last Name, First Name M.I." required />
+
+        <label>Program / Degree *</label>
+        <input type="text" name="program" placeholder="Enter Degree Program" required />
+
+        <label>Current Address / Barangay *</label>
+        <input type="text" name="address" placeholder="Purok, Barangay, City/Municipality" required />
+
+        <label>Boarding House (Optional)</label>
+        <input type="text" name="boarding_house" placeholder="Enter Boarding House Name / Location" />
+
+        <label>Contact Number</label>
+        <input type="text" name="contact_number" placeholder="Enter Contact Number" />
+
+        <label>Incident Impact / Immediate Need *</label>
+        <select name="impact_type" required>
+          <option value="" disabled selected>-- Select Impact / Need --</option>
+          <option value="Stranded">Stranded</option>
+          <option value="House Flooded">House Flooded</option>
+          <option value="Displaced">Displaced (Needs Shelter)</option>
+          <option value="Injured">Injured / Medical Attention</option>
+          <option value="Needs Relief">Needs Food / Relief Pack</option>
+        </select>
+
+        <div id="studentFormError" class="error-box hidden"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('modalStudent')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Student Record</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 2: EDIT / UPDATE SUBMITTED STUDENT DATA (COLLEGE) -->
+  <div id="modalEditStudent" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Update Submitted Student Data</h3>
+        <button class="close-btn" onclick="closeModal('modalEditStudent')">&times;</button>
+      </div>
+      <form id="editStudentForm">
+        <input type="hidden" id="editRecordId" />
+
+        <label>Student ID (Read-Only)</label>
+        <input type="text" id="editStudentIdDisplay" disabled />
+
+        <label>Full Name *</label>
+        <input type="text" id="editFullName" required />
+
+        <label>Program / Degree *</label>
+        <input type="text" id="editProgram" required />
+
+        <label>Current Address / Barangay *</label>
+        <input type="text" id="editAddress" required />
+
+        <label>Boarding House (Optional)</label>
+        <input type="text" id="editBoardingHouse" placeholder="Enter Boarding House Name / Location" />
+
+        <label>Contact Number</label>
+        <input type="text" id="editContactNumber" />
+
+        <label>Incident Impact / Immediate Need *</label>
+        <select id="editImpactType" required>
+          <option value="Stranded">Stranded</option>
+          <option value="House Flooded">House Flooded</option>
+          <option value="Displaced">Displaced (Needs Shelter)</option>
+          <option value="Injured">Injured / Medical Attention</option>
+          <option value="Needs Relief">Needs Food / Relief Pack</option>
+        </select>
+
+        <label>Update Note / Reason for Change</label>
+        <input type="text" id="editUpdateNote" placeholder="Describe what changed (e.g., updated location or status)" />
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('modalEditStudent')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Updated Data</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 3: NSRC ACTION UPDATE & AUDIT LOG -->
+  <div id="modalCase" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Case Details &amp; Action Audit Trail</h3>
+        <button class="close-btn" onclick="closeModal('modalCase')">&times;</button>
+      </div>
+      <div id="caseStudentSummary" class="summary-box"></div>
+
+      <form id="caseUpdateForm" class="admin-only">
+        <input type="hidden" id="caseRecordId" />
+        <label>Update NSRC Action Status</label>
+        <select id="caseStatusSelect" required>
+          <option value="Received / Verified">Received / Verified</option>
+          <option value="Action in Progress">Action in Progress</option>
+          <option value="Assisted / Sheltered">Assisted / Sheltered</option>
+          <option value="Resolved">Resolved</option>
+        </select>
+
+        <label>Assign Evacuation Center (Optional)</label>
+        <select id="caseCenterSelect">
+          <option value="">-- No Shelter Assignment --</option>
+        </select>
+
+        <label>Action Taken / Remarks *</label>
+        <textarea id="caseActionNotes" rows="2" placeholder="Describe action taken by CSU NSRC..." required></textarea>
+
+        <button type="submit" class="btn btn-primary w-full" style="margin-top: 0.75rem;">Save Status &amp; Record Action</button>
+      </form>
+
+      <h4 class="sub-heading">Action Audit Trail</h4>
+      <div id="caseLogsList" class="audit-list"></div>
+    </div>
+  </div>
+
+  <!-- MODAL 4: RECORD NEW INCIDENT -->
+  <div id="modalIncident" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Record New Calamity / Incident</h3>
+        <button class="close-btn" onclick="closeModal('modalIncident')">&times;</button>
+      </div>
+      <form id="incidentForm">
+        <label>Incident Title *</label>
+        <input type="text" name="title" placeholder="Enter Calamity or Incident Name" required />
+
+        <label>Hazard Type *</label>
+        <select name="hazard_type" required>
+          <option value="" disabled selected>-- Select Hazard Type --</option>
+          <option value="Typhoon">Typhoon</option>
+          <option value="Flash Flood">Flash Flood</option>
+          <option value="Fire">Fire</option>
+          <option value="Earthquake">Earthquake</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <label>Incident Date / Period (Optional)</label>
+        <input type="text" name="incident_date" placeholder="Enter Date or Period" />
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('modalIncident')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Incident</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 5: REGISTER EXTERNAL PARTNER INSTITUTION -->
+  <div id="modalPartner" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Register External Partner Institution</h3>
+        <button class="close-btn" onclick="closeModal('modalPartner')">&times;</button>
+      </div>
+      <form id="partnerForm">
+        <label>Institution / Organization Name *</label>
+        <input type="text" name="institution_name" placeholder="Enter Organization Name" required />
+
+        <label>Institution Type *</label>
+        <select name="partner_type" required>
+          <option value="" disabled selected>-- Select Organization Type --</option>
+          <option value="NGO">NGO</option>
+          <option value="Government / LGU">Government / LGU</option>
+          <option value="Academic Institution">Academic Institution</option>
+          <option value="Private / Corporate">Private / Corporate</option>
+          <option value="Alumni / Individual">Alumni / Individual</option>
+        </select>
+
+        <label>Contact Person</label>
+        <input type="text" name="contact_person" placeholder="Enter Contact Person" />
+
+        <label>Contact Details</label>
+        <input type="text" name="contact_details" placeholder="Enter Phone or Email" />
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('modalPartner')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Partner Institution</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 6: LOG DONATION (IN) OR RELIEF RELEASE (OUT) -->
+  <div id="modalTx" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="txModalTitle">Log External Donation</h3>
+        <button class="close-btn" onclick="closeModal('modalTx')">&times;</button>
+      </div>
+      <form id="txForm">
+        <input type="hidden" id="txType" name="tx_type" />
+
+        <label>Relief Item *</label>
+        <select id="txItemSelect" name="item_id" required></select>
+
+        <div id="txPartnerGroup">
+          <label>External Partner / Donor Institution</label>
+          <select id="txPartnerSelect" name="partner_id">
+            <option value="">-- Walk-in / Unlisted Donor --</option>
+          </select>
+        </div>
+
+        <label id="txSourceLabel">Donor Details / Reference *</label>
+        <input type="text" id="txSourceInput" name="source_or_recipient" placeholder="Enter Details" required />
+
+        <label>Quantity *</label>
+        <input type="number" name="quantity" min="1" placeholder="Enter Quantity" required />
+
+        <div id="txError" class="error-box hidden"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('modalTx')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Record Transaction</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 7: ADD EVACUATION CENTER -->
+  <div id="modalCenter" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Add Evacuation Center</h3>
+        <button class="close-btn" onclick="closeModal('modalCenter')">&times;</button>
+      </div>
+      <form id="centerForm">
+        <label>Center Name *</label>
+        <input type="text" name="name" placeholder="Enter Facility Name" required />
+
+        <label>Location *</label>
+        <input type="text" name="location" placeholder="Enter Campus / Barangay Location" required />
+
+        <label>Maximum Capacity (Persons) *</label>
+        <input type="number" name="max_capacity" min="1" placeholder="Enter Max Capacity" required />
+
+        <label>Available Amenities</label>
+        <input type="text" name="amenities" placeholder="Enter Available Amenities" />
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('modalCenter')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Evacuation Center</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL 8: ADD RELIEF INVENTORY ITEM -->
+  <div id="modalItem" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Add Relief Inventory Item</h3>
+        <button class="close-btn" onclick="closeModal('modalItem')">&times;</button>
+      </div>
+      <form id="itemForm">
+        <label>Item Name *</label>
+        <input type="text" name="item_name" placeholder="Enter Relief Item Name" required />
+
+        <label>Category *</label>
+        <select name="category" required>
+          <option value="" disabled selected>-- Select Category --</option>
+          <option value="Food & Water">Food &amp; Water</option>
+          <option value="Hygiene & Sleeping">Hygiene &amp; Sleeping</option>
+          <option value="Medical">Medical</option>
+          <option value="Clothing & Shelter">Clothing &amp; Shelter</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <label>Unit of Measure *</label>
+        <input type="text" name="unit" placeholder="e.g., packs, bottles, boxes, kits" required />
+
+        <label>Low-Stock Alert Threshold *</label>
+        <input type="number" name="reorder_threshold" min="1" placeholder="Enter Alert Threshold" required />
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('modalItem')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Relief Item</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/static/js/app.js?v=6"></script>
+</body>
+</html>
